@@ -1,0 +1,221 @@
+#include <string>
+#include <iostream>
+#include <vector>
+#include <queue>
+using namespace std;
+struct GraphNode
+{
+    int data_size = 0;
+    double Bribe;
+    string Name;
+    vector<double> Branch;
+    GraphNode(double bribe, string name)
+    {
+        Bribe = bribe;
+        Name = name;
+    }
+};
+struct DijkObj
+{
+    int Pos;
+    double Edge;
+    double Bribe;
+    vector<int> path;
+    DijkObj(int pos,double edge,double bribe)
+    {
+        Edge = edge;
+        Bribe = bribe;
+        Pos = pos;
+    }
+    DijkObj(int pos,double edge,double bribe,vector<int> prev)
+    {
+        Edge = edge;
+        Bribe = bribe;
+        Pos = pos;
+        path = prev;
+    }
+};
+struct DijkPath
+{
+    vector<int> path;
+};
+class DijkObjCompare
+{
+    public:
+    bool operator()(DijkObj &lhs, DijkObj &rhs)
+    {
+        if (lhs.Edge < rhs.Edge)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+};
+class MyGraph
+{
+    private:
+        string start;
+        string finish;
+        int data_size = 0;
+        vector<GraphNode>  Graph;
+    public:
+        void newGraphNode (double bribe, string name)
+        {
+            GraphNode NewNode(bribe, name);
+            Graph.push_back(NewNode);
+            data_size++;
+        }
+        void AddEdge(string name_row, double edge)
+        {
+            int i =0;
+            while(Graph[i].Name != name_row)
+            {
+               i++;
+                if(i == data_size)
+                {
+                    cout<<"parent does not exist!"<<endl;
+                    return;
+                }
+            }
+            Graph[i].Branch.push_back(edge);
+            Graph[i].data_size++;
+        }
+        void PrintGraph()
+        {
+            for(int i = 0;i<data_size;i++)
+            {
+                cout<<Graph[i].Name<<" ("<<Graph[i].Bribe<<") ";
+                for(int j=0;j<Graph[i].data_size;j++)
+                {
+                    cout<<Graph[i].Branch[j]<<" ";
+                }
+                cout<<endl;
+            }
+        }
+        void ReadCsv()
+        {
+            string name,temp,str_bribe;
+            double bribe;
+            double edge;
+            string delim1 = " ";
+            string delim2 = ")";
+            string delim3 = ",";
+            string delim4 = "?";
+            std::string::size_type size;
+            std::getline(std::cin,temp,'\n');
+            while(temp.length() != 0)
+            {
+                temp.erase(0,1);
+                name = temp.substr(0,temp.find(delim1));
+                temp.erase(0,name.length()+2);
+                str_bribe = temp.substr(0,temp.find(delim2));
+                temp.erase(0,str_bribe.length()+1);
+                bribe = std::stod(str_bribe,&size);
+                newGraphNode(bribe,name);
+            }
+            for(int i = 0;i<data_size;i++)
+            {
+                std::getline(std::cin,temp,'\n');
+                name = temp.substr(0,temp.find(delim1));
+                temp.erase(0,name.length()+1);
+                str_bribe = temp.substr(0,temp.find(delim2));
+                temp.erase(0,str_bribe.length()+1);
+                while(temp.length() != 0)
+                {
+                    temp.erase(0,1);
+                    str_bribe = temp.substr(0,temp.find(delim3));
+                    edge = std::stod(str_bribe,&size);
+                    temp.erase(0,str_bribe.length());
+                    AddEdge(name,edge);
+                }
+            }
+            std::getline(std::cin,temp,'\n');
+            std::getline(std::cin,temp,'\n');
+            for(int i = 0;i<6;i++)
+            {
+                temp.erase(0,temp.find(delim1)+1);
+            }
+            start = temp.substr(0,temp.find(delim1));
+            start.erase(start.end()-1,start.end());
+            temp.erase(0,temp.find(delim1)+1);
+            temp.erase(0,temp.find(delim1)+1);
+            finish = temp.substr(0,temp.find(delim4));
+            finish.erase(finish.end()-1,finish.end());
+        }
+        void Dijkstra()
+        {
+            priority_queue< DijkObj, vector <DijkObj> , DijkObjCompare > DijQueue;
+            int i = 0;
+            int iter,prev = -1;
+            double ecost,bcost;
+            vector<double> edge(data_size,999);
+            vector<double> bribe(data_size,999);
+            vector<DijkPath> path;
+            path.resize(data_size);
+            while(Graph[i].Name != start)
+            {
+                i++;
+                if(i == data_size)
+                {
+                    return;
+                }
+            }
+
+            DijQueue.push(DijkObj(i,0,0));
+            while(!DijQueue.empty())
+            {
+                iter = DijQueue.top().Pos;
+                ecost = DijQueue.top().Edge;
+                bcost = DijQueue.top().Bribe;
+                path[iter].path = DijQueue.top().path;
+                path[iter].path.push_back(iter);
+                DijQueue.pop();
+                if(edge[iter] == 999)
+                {
+
+                    edge[iter] = ecost;
+                    bribe[iter] = bcost;
+                    for(int j = 0; j < data_size; j++)
+                    {
+                        if(Graph[iter].Branch[j] != 0)
+                        {
+                            if(edge[j]==999)
+                            {
+                            DijQueue.push(DijkObj(j,Graph[iter].Branch[j]+ecost,Graph[iter].Bribe+bcost,path[iter].path));
+                            }
+                        }
+                    }
+                }
+            }
+            int finish_pos = 0;
+            iter = 0;
+			while(Graph[iter].Name != finish)
+			{
+				iter++;
+			}
+			if(edge[iter] == 999)
+			{
+				cout<<"There is no path from "<<start<<"s to "<<finish<<"s."<<endl;
+			}
+			else
+			{		
+				cout<<"The shortest path from "<<start<<"s to "<<finish<<"s is:"<<endl;
+				for(int q = 0; q<path[iter].path.size();q++)
+				{
+					cout<<Graph[path[iter].path[q]].Name<<"s, ";
+				}
+				cout<<"with sum exchange cost of "<<edge[iter]<<" and bribe cost of "<<bribe[iter]<<"."<<endl;
+			}
+        }
+};
+
+int main()
+{
+
+    MyGraph Graph;
+    Graph.ReadCsv();
+    Graph.Dijkstra();
+}
