@@ -1,0 +1,8 @@
+3c3
+< Your cluster architecture is Backward compatibile, its purpose is Anything you want, and lots of it!
+---
+> Your cluster architecture is Backward compatible, its purpose is Anything you want, and lots of it!
+9c9
+< Your phone architecture is Reduced Instruction Set, its purpose is Uploading your converstations to google, and it follows you around!
+---
+> Your phone architecture is Reduced Instruction Set, its purpose is Uploading your conversations to google, and it follows you around!

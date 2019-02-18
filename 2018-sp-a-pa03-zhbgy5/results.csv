@@ -1,0 +1,2 @@
+folder_name (n/a for points),email_handle-SID_num (anything else is no credit),Build matrix,Fill matrix,Bytes definitely lost (memory leak) (0 is perfect),Main output diff size (0 is perfect),Runtime across many runs
+zhbgy5,zhbgy5-12350273,pass,fail,0,0,0.27847038918
